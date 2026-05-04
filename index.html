@@ -55,8 +55,7 @@
         html { height: 100%; -webkit-text-size-adjust: 100%; -webkit-user-select: none; user-select: none; }
 
         body {
-            height: 100dvh;
-            height: 100vh;
+            height: 100%;
             font-family: var(--font);
             color: var(--text);
             overflow: hidden;
@@ -67,6 +66,11 @@
             background: var(--bg);
             transition: background 600ms var(--ease), color 400ms var(--ease);
             width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
         }
 
         button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -77,8 +81,7 @@
         .container {
             width: 100%;
             max-width: 500px;
-            height: 100dvh;
-            height: 100vh;
+            height: 100%;
             display: flex;
             flex-direction: column;
             background: var(--bg);
@@ -225,10 +228,12 @@
             gap: 12px;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.15;
+            opacity: 0.2;
             transition: opacity 600ms var(--ease);
         }
-        .orb-stage.thinking-glow { opacity: 0.25; }
+        [data-theme="light"] .orb-stage { opacity: 0.3; }
+        .orb-stage.thinking-glow { opacity: 0.35; }
+        [data-theme="light"] .orb-stage.thinking-glow { opacity: 0.45; }
         .orb-wrapper { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; animation: orbBreathe 3.5s ease-in-out infinite; }
         .orb-wrapper.thinking { animation: orbBreatheThinking 1.2s ease-in-out infinite; }
         #orb-canvas { display: block; width: 100%; height: 100%; }
@@ -666,14 +671,8 @@
             .chat-panel { height: 50dvh; }
         }
 
-        /* iPhone keyboard fix */
-        @supports (-webkit-touch-callout: none) {
-            body { height: -webkit-fill-available; min-height: -webkit-fill-available; }
-            .container { height: -webkit-fill-available; min-height: -webkit-fill-available; }
-        }
-
-        /* Keyboard open - page stays still, just resize container height */
-        .keyboard-open .status-bar { opacity: 0; height: 0; overflow: hidden; padding: 0; transition: all 150ms ease; }
+        /* Keyboard open - only hide status bar for more space */
+        .keyboard-open .status-bar { opacity: 0; height: 0; overflow: hidden; padding: 0; margin: 0; transition: all 150ms ease; }
     </style>
 </head>
 <body>
@@ -998,11 +997,14 @@
 
             const t = orbAnimationTime * 0.001;
             const isDarkTheme = STATE.theme === 'dark';
-            const pinkColor = isDarkTheme ? '232, 85, 154' : '204, 68, 136';
+            // Dark mode: pearly/white-pink center. Light mode: stronger pink
+            const ringColor = isDarkTheme ? '255, 200, 230' : '220, 50, 120';
+            const coreColor = isDarkTheme ? '255, 220, 240' : '232, 60, 140';
+            const glowColor = isDarkTheme ? '255, 180, 220' : '232, 85, 154';
 
-            const glowGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 120);
-            glowGradient.addColorStop(0, `rgba(${pinkColor}, 0.2)`);
-            glowGradient.addColorStop(0.5, `rgba(${pinkColor}, 0.05)`);
+            const glowGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 130);
+            glowGradient.addColorStop(0, `rgba(${glowColor}, 0.35)`);
+            glowGradient.addColorStop(0.4, `rgba(${glowColor}, 0.12)`);
             glowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
             ctx.fillStyle = glowGradient;
             ctx.fillRect(0, 0, width, height);
@@ -1024,15 +1026,15 @@
                 }
 
                 ctx.closePath();
-                const opacity = 0.5 - ring * 0.12;
-                ctx.strokeStyle = `rgba(${pinkColor}, ${opacity})`;
-                ctx.lineWidth = 2;
+                const opacity = isDarkTheme ? (0.6 - ring * 0.15) : (0.7 - ring * 0.15);
+                ctx.strokeStyle = `rgba(${ringColor}, ${opacity})`;
+                ctx.lineWidth = isDarkTheme ? 1.5 : 2;
                 ctx.stroke();
             }
 
             const coreGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 40);
-            coreGradient.addColorStop(0, `rgba(${pinkColor}, 0.4)`);
-            coreGradient.addColorStop(1, `rgba(${pinkColor}, 0.1)`);
+            coreGradient.addColorStop(0, `rgba(${coreColor}, ${isDarkTheme ? 0.6 : 0.7})`);
+            coreGradient.addColorStop(1, `rgba(${coreColor}, ${isDarkTheme ? 0.15 : 0.2})`);
             ctx.fillStyle = coreGradient;
             ctx.beginPath();
             ctx.arc(centerX, centerY, 40, 0, Math.PI * 2);
@@ -1553,61 +1555,59 @@
         }
 
         // ============================================================================
-        // MOBILE KEYBOARD FIX (page stays still like native app)
+        // MOBILE KEYBOARD FIX (page stays completely still)
         // ============================================================================
         (function() {
             const container = document.querySelector('.container');
-            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-            let initialHeight = window.innerHeight;
+            
+            // Use position:fixed on body to prevent ANY page movement
+            // The body is already position:fixed, so iOS cannot scroll it
             
             if (window.visualViewport) {
-                initialHeight = window.visualViewport.height;
-                
-                window.visualViewport.addEventListener('resize', () => {
-                    const currentHeight = window.visualViewport.height;
-                    const keyboardOpen = currentHeight < initialHeight - 100;
+                const onViewportChange = () => {
+                    // Set body and container height to the visual viewport
+                    const h = window.visualViewport.height;
+                    document.body.style.height = h + 'px';
+                    container.style.height = h + 'px';
                     
-                    // Resize container to fit available space without moving anything
-                    container.style.height = currentHeight + 'px';
-                    
+                    // Detect keyboard
+                    const keyboardOpen = h < window.screen.height * 0.75;
                     if (keyboardOpen) {
                         container.classList.add('keyboard-open');
                     } else {
                         container.classList.remove('keyboard-open');
-                        container.style.height = '';
                     }
                     
-                    setTimeout(scrollToBottom, 50);
-                });
+                    // Counteract any viewport offset iOS applies
+                    const offsetTop = window.visualViewport.offsetTop;
+                    if (offsetTop > 0) {
+                        document.body.style.transform = `translateY(-${offsetTop}px)`;
+                    } else {
+                        document.body.style.transform = '';
+                    }
+                    
+                    setTimeout(scrollToBottom, 30);
+                };
                 
-                // Prevent iOS from scrolling the viewport itself
-                window.visualViewport.addEventListener('scroll', (e) => {
-                    e.preventDefault && e.preventDefault();
-                    window.scrollTo(0, 0);
-                });
+                window.visualViewport.addEventListener('resize', onViewportChange);
+                window.visualViewport.addEventListener('scroll', onViewportChange);
             }
             
             DOM.messageInput.addEventListener('focus', () => {
-                setTimeout(() => {
-                    scrollToBottom();
-                    window.scrollTo(0, 0);
-                }, 300);
+                setTimeout(scrollToBottom, 300);
             });
             
-            DOM.messageInput.addEventListener('blur', () => {
-                setTimeout(() => {
-                    container.classList.remove('keyboard-open');
-                    container.style.height = '';
-                    window.scrollTo(0, 0);
-                }, 150);
-            });
-            
-            // Prevent body scroll on iOS
-            document.body.addEventListener('touchmove', (e) => {
+            // Prevent any body/document scrolling
+            document.addEventListener('touchmove', (e) => {
                 if (!e.target.closest('.messages-container, .diary-content, .sheet-content')) {
                     e.preventDefault();
                 }
             }, { passive: false });
+            
+            // Also prevent scroll on window
+            window.addEventListener('scroll', () => {
+                window.scrollTo(0, 0);
+            });
         })();
 
         // ============================================================================
