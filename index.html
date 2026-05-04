@@ -675,6 +675,150 @@
             height: 16px;
         }
 
+        /* Status Bar (emotion + connection) */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 6px 16px;
+            flex-shrink: 0;
+        }
+
+        .emotion-selector {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            cursor: pointer;
+            transition: all 200ms var(--ease);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .emotion-selector:hover {
+            border-color: var(--border-hi);
+        }
+
+        .emotion-emoji {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .emotion-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .emotion-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 200ms var(--ease);
+            z-index: 100;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            min-width: 180px;
+        }
+
+        .emotion-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .emotion-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 8px 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 150ms var(--ease);
+            border: none;
+            background: none;
+        }
+
+        .emotion-option:hover {
+            background: var(--pink-glow);
+        }
+
+        .emotion-option .emoji {
+            font-size: 1.2rem;
+        }
+
+        .emotion-option .label {
+            font-size: 0.6rem;
+            color: var(--text-faint);
+            white-space: nowrap;
+        }
+
+        .connection-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            transition: all 300ms var(--ease);
+        }
+
+        .connection-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            transition: background 300ms var(--ease);
+        }
+
+        .connection-badge.online .connection-dot {
+            background: #22c55e;
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+        }
+
+        .connection-badge.online {
+            color: #22c55e;
+            border-color: rgba(34, 197, 94, 0.25);
+        }
+
+        .connection-badge.unstable .connection-dot {
+            background: #f59e0b;
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+        }
+
+        .connection-badge.unstable {
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .connection-badge.offline .connection-dot {
+            background: #ef4444;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+        }
+
+        .connection-badge.offline {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
         /* Top Bar */
         .top-bar {
             display: flex;
@@ -747,6 +891,52 @@
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                     </svg>
                 </button>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="emotion-selector" id="emotion-selector" onclick="toggleEmotionDropdown()">
+                <span class="emotion-emoji" id="emotion-emoji">😊</span>
+                <span class="emotion-text" id="emotion-text">Feliz</span>
+                <div class="emotion-dropdown" id="emotion-dropdown">
+                    <button class="emotion-option" onclick="selectEmotion(event, '😊', 'Feliz')">
+                        <span class="emoji">😊</span>
+                        <span class="label">Feliz</span>
+                    </button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😢', 'Triste')">
+                        <span class="emoji">😢</span>
+                        <span class="label">Triste</span>
+                    </button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '🤔', 'Pensando')">
+                        <span class="emoji">🤔</span>
+                        <span class="label">Pensando</span>
+                    </button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😠', 'Enojado')">
+                        <span class="emoji">😠</span>
+                        <span class="label">Enojado</span>
+                    </button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '🧐', 'Introspectivo')">
+                        <span class="emoji">🧐</span>
+                        <span class="label">Introspectivo</span>
+                    </button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😒', 'Celoso')">
+                        <span class="emoji">😒</span>
+                        <span class="label">Celoso</span>
+                    </button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😴', 'Cansado')">
+                        <span class="emoji">😴</span>
+                        <span class="label">Cansado</span>
+                    </button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '🥰', 'Amoroso')">
+                        <span class="emoji">🥰</span>
+                        <span class="label">Amoroso</span>
+                    </button>
+                </div>
+            </div>
+            <div class="connection-badge online" id="connection-badge">
+                <div class="connection-dot"></div>
+                <span id="connection-text">Conectado</span>
             </div>
         </div>
 
@@ -902,7 +1092,9 @@
             activeCapabilities: new Set(),
             selectedFile: null,
             isThinking: false,
-            isStreaming: false
+            isStreaming: false,
+            currentEmotion: localStorage.getItem('noa_emotion') || 'Feliz',
+            currentEmoji: localStorage.getItem('noa_emoji') || '😊'
         };
 
         // ============================================================================
@@ -942,10 +1134,28 @@
             // Set theme
             setTheme(STATE.theme);
 
+            // Set emotion
+            document.getElementById('emotion-emoji').textContent = STATE.currentEmoji;
+            document.getElementById('emotion-text').textContent = STATE.currentEmotion;
+
             // Setup event listeners
             DOM.messageInput.addEventListener('input', handleInputResize);
             DOM.messageInput.addEventListener('keydown', handleInputKeydown);
             DOM.configSheet.addEventListener('click', handleSheetOverlayClick);
+
+            // Close emotion dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const selector = document.getElementById('emotion-selector');
+                if (!selector.contains(e.target)) {
+                    document.getElementById('emotion-dropdown').classList.remove('show');
+                }
+            });
+
+            // Start connection monitoring
+            checkConnection();
+            setInterval(checkConnection, 10000);
+            window.addEventListener('online', checkConnection);
+            window.addEventListener('offline', checkConnection);
 
             // Start orb animation
             animateOrb();
@@ -1155,6 +1365,60 @@
         function clearChat() {
             DOM.messagesContainer.innerHTML = '<div class="message assistant">Chat cleared. How can I help you?</div>';
             closeConfig();
+        }
+
+        // ============================================================================
+        // EMOTION & CONNECTION
+        // ============================================================================
+
+        function toggleEmotionDropdown() {
+            document.getElementById('emotion-dropdown').classList.toggle('show');
+        }
+
+        function selectEmotion(event, emoji, text) {
+            event.stopPropagation();
+            STATE.currentEmoji = emoji;
+            STATE.currentEmotion = text;
+            document.getElementById('emotion-emoji').textContent = emoji;
+            document.getElementById('emotion-text').textContent = text;
+            document.getElementById('emotion-dropdown').classList.remove('show');
+            localStorage.setItem('noa_emoji', emoji);
+            localStorage.setItem('noa_emotion', text);
+        }
+
+        function checkConnection() {
+            const badge = document.getElementById('connection-badge');
+            const text = document.getElementById('connection-text');
+
+            if (!navigator.onLine) {
+                badge.className = 'connection-badge offline';
+                text.textContent = 'Sin conexión';
+                return;
+            }
+
+            // Check if Flowise is reachable
+            if (STATE.config.flowise_url) {
+                const startTime = Date.now();
+                fetch(STATE.config.flowise_url, { method: 'HEAD', mode: 'no-cors', cache: 'no-cache' })
+                    .then(() => {
+                        const latency = Date.now() - startTime;
+                        if (latency > 3000) {
+                            badge.className = 'connection-badge unstable';
+                            text.textContent = 'Inestable';
+                        } else {
+                            badge.className = 'connection-badge online';
+                            text.textContent = 'Conectado';
+                        }
+                    })
+                    .catch(() => {
+                        badge.className = 'connection-badge unstable';
+                        text.textContent = 'Inestable';
+                    });
+            } else {
+                // No URL configured, just check internet
+                badge.className = 'connection-badge online';
+                text.textContent = 'Conectado';
+            }
         }
 
         // ============================================================================
