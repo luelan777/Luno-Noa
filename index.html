@@ -18,15 +18,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d0f1a;
-            --surface: rgba(13, 15, 28, 0.92);
-            --surface2: rgba(18, 20, 38, 0.95);
-            --border: rgba(200, 150, 220, 0.12);
+            --bg: #0b1120;
+            --surface: rgba(11, 17, 32, 0.92);
+            --surface2: rgba(14, 22, 40, 0.95);
+            --border: rgba(150, 180, 220, 0.12);
             --border-hi: rgba(232, 85, 154, 0.28);
-            --text: #ede8f5;
-            --text-muted: #9080b0;
-            --text-faint: #3a3060;
-            --input-bg: rgba(15, 12, 32, 0.92);
+            --text: #e8edf5;
+            --text-muted: #8090b8;
+            --text-faint: #2a3555;
+            --input-bg: rgba(10, 15, 28, 0.92);
             --pink: #e8559a;
             --pink-soft: #f0a0c8;
             --pink-glow: rgba(232, 85, 154, 0.25);
@@ -997,10 +997,10 @@
 
             const t = orbAnimationTime * 0.001;
             const isDarkTheme = STATE.theme === 'dark';
-            // Dark mode: pearly/white-pink center. Light mode: stronger pink
-            const ringColor = isDarkTheme ? '255, 200, 230' : '220, 50, 120';
-            const coreColor = isDarkTheme ? '255, 220, 240' : '232, 60, 140';
-            const glowColor = isDarkTheme ? '255, 180, 220' : '232, 85, 154';
+            // Dark mode: moon/star warm white-gold. Light mode: stronger pink
+            const ringColor = isDarkTheme ? '255, 235, 180' : '220, 50, 120';
+            const coreColor = isDarkTheme ? '255, 248, 220' : '232, 60, 140';
+            const glowColor = isDarkTheme ? '255, 230, 160' : '232, 85, 154';
 
             const glowGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 130);
             glowGradient.addColorStop(0, `rgba(${glowColor}, 0.35)`);
