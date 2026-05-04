@@ -224,8 +224,12 @@
             pointer-events: none;
             position: relative;
         }
-        .orb-wrapper { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; }
+        .orb-wrapper { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; animation: orbBreathe 3.5s ease-in-out infinite; }
+        .orb-wrapper.thinking { animation: orbBreatheThinking 1.2s ease-in-out infinite; }
         #orb-canvas { display: block; width: 100%; height: 100%; filter: drop-shadow(0 0 20px var(--pink-glow)); }
+
+        @keyframes orbBreathe { 0%, 100% { transform: scale(0.97); } 50% { transform: scale(1.03); } }
+        @keyframes orbBreatheThinking { 0%, 100% { transform: scale(0.93); } 50% { transform: scale(1.07); } }
         .status-label {
             font-size: 0.72rem;
             font-weight: 400;
@@ -641,12 +645,28 @@
         /* Hidden */
         #file-input { display: none; }
 
+        /* Typing label */
+        .typing-label {
+            font-size: 0.68rem;
+            color: var(--pink-soft);
+            padding: 2px 12px;
+            letter-spacing: 0.03em;
+            animation: fadeInOut 1.5s ease-in-out infinite;
+        }
+        @keyframes fadeInOut { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
         /* Responsive */
         @media (max-width: 480px) {
             .container { max-width: 100%; }
             .orb-wrapper { width: 200px; height: 200px; }
             .message { font-size: 0.85rem; }
             .chat-panel { height: 50dvh; }
+        }
+
+        /* iPhone keyboard fix */
+        @supports (-webkit-touch-callout: none) {
+            body { height: -webkit-fill-available; }
+            .container { height: -webkit-fill-available; }
         }
     </style>
 </head>
@@ -791,6 +811,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                     <span>Activar Notificaciones</span>
                 </button>
+                <a class="config-btn" href="https://console.anthropic.com/settings/billing" target="_blank" rel="noopener">
+                    <span>💳</span>
+                    <span>Créditos API</span>
+                </a>
             </div>
         </div>
     </div>
@@ -1336,11 +1360,17 @@
         }
 
         function addTypingIndicator() {
+            const wrapper = document.createElement('div');
+            wrapper.id = 'typing-indicator';
+            const label = document.createElement('div');
+            label.className = 'typing-label';
+            label.textContent = 'Noa está escribiendo...';
             const indicator = document.createElement('div');
             indicator.className = 'typing-indicator';
-            indicator.id = 'typing-indicator';
             indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-            DOM.messagesContainer.appendChild(indicator);
+            wrapper.appendChild(label);
+            wrapper.appendChild(indicator);
+            DOM.messagesContainer.appendChild(wrapper);
             scrollToBottom();
         }
 
@@ -1355,8 +1385,16 @@
 
         function setThinkingState(isThinking) {
             STATE.isThinking = isThinking;
-            if (isThinking) { DOM.statusDot.classList.add('pulse'); DOM.statusLabel.classList.add('active'); }
-            else { DOM.statusDot.classList.remove('pulse'); DOM.statusLabel.classList.remove('active'); }
+            const orbWrapper = document.querySelector('.orb-wrapper');
+            if (isThinking) {
+                DOM.statusDot.classList.add('pulse');
+                DOM.statusLabel.classList.add('active');
+                orbWrapper.classList.add('thinking');
+            } else {
+                DOM.statusDot.classList.remove('pulse');
+                DOM.statusLabel.classList.remove('active');
+                orbWrapper.classList.remove('thinking');
+            }
         }
 
         async function sendMessage() {
@@ -1384,6 +1422,12 @@
 
             try {
                 const body = { question: message };
+                // Send mood as context to Flowise
+                if (STATE.currentEmotion) {
+                    body.overrideConfig = {
+                        systemMessagePrompt: `[Estado emocional actual de Noa: ${STATE.currentEmoji} ${STATE.currentEmotion}]`
+                    };
+                }
                 if (STATE.activeCapabilities.size > 0) body.capabilities = Array.from(STATE.activeCapabilities);
 
                 if (STATE.selectedFile && STATE.activeCapabilities.has('vision')) {
@@ -1413,6 +1457,8 @@
                 }
 
                 clearImagePreview();
+                // Play subtle notification sound
+                playMessageSound();
             } catch (error) {
                 removeTypingIndicator();
                 console.error('Error:', error);
@@ -1461,6 +1507,42 @@
                 reader.readAsDataURL(file);
                 reader.onload = () => resolve(reader.result);
                 reader.onerror = (error) => reject(error);
+            });
+        }
+
+        // ============================================================================
+        // MESSAGE SOUND (Web Audio API)
+        // ============================================================================
+        let audioCtx = null;
+        function playMessageSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch(e) {}
+        }
+
+        // ============================================================================
+        // MOBILE KEYBOARD FIX
+        // ============================================================================
+        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            DOM.messageInput.addEventListener('focus', () => {
+                setTimeout(() => {
+                    scrollToBottom();
+                    window.scrollTo(0, 0);
+                }, 300);
+            });
+            window.visualViewport && window.visualViewport.addEventListener('resize', () => {
+                document.querySelector('.container').style.height = window.visualViewport.height + 'px';
             });
         }
 
