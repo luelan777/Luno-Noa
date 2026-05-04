@@ -56,6 +56,7 @@
 
         body {
             height: 100dvh;
+            height: 100vh;
             font-family: var(--font);
             color: var(--text);
             overflow: hidden;
@@ -65,10 +66,7 @@
             justify-content: center;
             background: var(--bg);
             transition: background 600ms var(--ease), color 400ms var(--ease);
-            position: fixed;
             width: 100%;
-            top: 0;
-            left: 0;
         }
 
         button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -80,11 +78,13 @@
             width: 100%;
             max-width: 500px;
             height: 100dvh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             background: var(--bg);
             position: relative;
             z-index: 1;
+            overflow: hidden;
         }
 
         /* Top Bar */
@@ -665,9 +665,14 @@
 
         /* iPhone keyboard fix */
         @supports (-webkit-touch-callout: none) {
-            body { height: -webkit-fill-available; }
-            .container { height: -webkit-fill-available; }
+            body { height: -webkit-fill-available; min-height: -webkit-fill-available; }
+            .container { height: -webkit-fill-available; min-height: -webkit-fill-available; }
         }
+
+        /* When keyboard is open, shrink orb stage */
+        .keyboard-open .orb-stage { flex: 0; padding: 0; height: 0; overflow: hidden; transition: all 200ms ease; }
+        .keyboard-open .status-bar { display: none; }
+        .keyboard-open .chat-panel { height: 100%; flex: 1; border-radius: 0; }
     </style>
 </head>
 <body>
@@ -1305,17 +1310,29 @@
         // NOTIFICATIONS
         // ============================================================================
         function requestNotificationPermission() {
+            // Check if running as installed PWA on iOS
+            const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+            
             if ('Notification' in window) {
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
-                        addMessage('🔔 Notificaciones activadas. Noa te enviará mensajes push.', 'assistant');
+                        addMessage('🔔 Notificaciones activadas. Noa te enviará mensajes.', 'assistant');
                         showLocalNotification('¡Hola!', 'Las notificaciones de Noa están activas 💕');
+                    } else if (permission === 'denied') {
+                        addMessage('Las notificaciones fueron denegadas. Puedes activarlas desde Ajustes > Safari > Notificaciones.', 'assistant');
                     } else {
-                        addMessage('Las notificaciones fueron denegadas. Puedes activarlas desde la configuración de tu navegador.', 'assistant');
+                        addMessage('No se pudo determinar el permiso. Intenta de nuevo.', 'assistant');
                     }
+                }).catch(() => {
+                    addMessage('Hubo un error al solicitar permisos de notificación.', 'assistant');
                 });
+            } else if (isIOS && !isStandalone) {
+                addMessage('📱 Para recibir notificaciones en iPhone, necesitas instalar esta app: toca Compartir (↑) > "Añadir a pantalla de inicio". Luego ábrela desde ahí y activa notificaciones.', 'assistant');
+            } else if (isIOS) {
+                addMessage('📱 Las notificaciones push requieren iOS 16.4 o superior. Verifica que tu iPhone esté actualizado en Ajustes > General > Actualización de software.', 'assistant');
             } else {
-                addMessage('Tu navegador no soporta notificaciones push.', 'assistant');
+                addMessage('Tu navegador no soporta notificaciones. Intenta usar Chrome o Safari actualizado.', 'assistant');
             }
         }
 
@@ -1534,17 +1551,52 @@
         // ============================================================================
         // MOBILE KEYBOARD FIX
         // ============================================================================
-        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        (function() {
+            const container = document.querySelector('.container');
+            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+            
+            if (window.visualViewport) {
+                let initialHeight = window.visualViewport.height;
+                
+                window.visualViewport.addEventListener('resize', () => {
+                    const currentHeight = window.visualViewport.height;
+                    const keyboardOpen = currentHeight < initialHeight - 100;
+                    
+                    container.style.height = currentHeight + 'px';
+                    
+                    if (keyboardOpen) {
+                        container.classList.add('keyboard-open');
+                    } else {
+                        container.classList.remove('keyboard-open');
+                        container.style.height = '';
+                        initialHeight = currentHeight;
+                    }
+                    
+                    setTimeout(scrollToBottom, 50);
+                });
+                
+                window.visualViewport.addEventListener('scroll', () => {
+                    container.style.transform = `translateY(${window.visualViewport.offsetTop}px)`;
+                });
+            }
+            
             DOM.messageInput.addEventListener('focus', () => {
                 setTimeout(() => {
                     scrollToBottom();
-                    window.scrollTo(0, 0);
-                }, 300);
+                    if (isIOS) {
+                        DOM.messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }
+                }, 350);
             });
-            window.visualViewport && window.visualViewport.addEventListener('resize', () => {
-                document.querySelector('.container').style.height = window.visualViewport.height + 'px';
+            
+            DOM.messageInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    container.classList.remove('keyboard-open');
+                    container.style.height = '';
+                    container.style.transform = '';
+                }, 100);
             });
-        }
+        })();
 
         // ============================================================================
         // STARTUP
