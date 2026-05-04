@@ -212,24 +212,29 @@
         .connection-badge.offline .connection-dot { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.5); }
         .connection-badge.offline { color: #ef4444; border-color: rgba(239,68,68,0.25); }
 
-        /* Orb Stage */
+        /* Orb Background (fixed behind everything) */
         .orb-stage {
-            flex: 1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 16px;
-            padding: 16px;
+            gap: 12px;
             pointer-events: none;
-            position: relative;
+            z-index: 0;
+            opacity: 0.15;
+            transition: opacity 600ms var(--ease);
         }
-        .orb-wrapper { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; animation: orbBreathe 3.5s ease-in-out infinite; }
+        .orb-stage.thinking-glow { opacity: 0.25; }
+        .orb-wrapper { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; animation: orbBreathe 3.5s ease-in-out infinite; }
         .orb-wrapper.thinking { animation: orbBreatheThinking 1.2s ease-in-out infinite; }
-        #orb-canvas { display: block; width: 100%; height: 100%; filter: drop-shadow(0 0 20px var(--pink-glow)); }
+        #orb-canvas { display: block; width: 100%; height: 100%; }
 
-        @keyframes orbBreathe { 0%, 100% { transform: scale(0.97); } 50% { transform: scale(1.03); } }
-        @keyframes orbBreatheThinking { 0%, 100% { transform: scale(0.93); } 50% { transform: scale(1.07); } }
+        @keyframes orbBreathe { 0%, 100% { transform: scale(0.95); } 50% { transform: scale(1.05); } }
+        @keyframes orbBreatheThinking { 0%, 100% { transform: scale(0.90); } 50% { transform: scale(1.10); } }
         .status-label {
             font-size: 0.72rem;
             font-weight: 400;
@@ -240,6 +245,7 @@
             align-items: center;
             gap: 8px;
             transition: color 400ms var(--ease);
+            opacity: 1;
         }
         .status-label.active { color: var(--pink); }
         .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
@@ -249,19 +255,16 @@
 
         /* Chat Panel */
         .chat-panel {
-            flex: 0 0 auto;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            height: 44dvh;
-            background: var(--surface);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: transparent;
             padding: 12px 16px max(16px, env(safe-area-inset-bottom));
             gap: 10px;
             transition: background 600ms var(--ease);
             overflow: hidden;
             z-index: 10;
-            border-radius: 24px 24px 0 0;
+            position: relative;
         }
 
         .messages-container {
@@ -669,10 +672,8 @@
             .container { height: -webkit-fill-available; min-height: -webkit-fill-available; }
         }
 
-        /* When keyboard is open, shrink orb stage */
-        .keyboard-open .orb-stage { flex: 0; padding: 0; height: 0; overflow: hidden; transition: all 200ms ease; }
-        .keyboard-open .status-bar { display: none; }
-        .keyboard-open .chat-panel { height: 100%; flex: 1; border-radius: 0; }
+        /* Keyboard open - page stays still, just resize container height */
+        .keyboard-open .status-bar { opacity: 0; height: 0; overflow: hidden; padding: 0; transition: all 150ms ease; }
     </style>
 </head>
 <body>
@@ -1403,14 +1404,17 @@
         function setThinkingState(isThinking) {
             STATE.isThinking = isThinking;
             const orbWrapper = document.querySelector('.orb-wrapper');
+            const orbStage = document.querySelector('.orb-stage');
             if (isThinking) {
                 DOM.statusDot.classList.add('pulse');
                 DOM.statusLabel.classList.add('active');
                 orbWrapper.classList.add('thinking');
+                orbStage.classList.add('thinking-glow');
             } else {
                 DOM.statusDot.classList.remove('pulse');
                 DOM.statusLabel.classList.remove('active');
                 orbWrapper.classList.remove('thinking');
+                orbStage.classList.remove('thinking-glow');
             }
         }
 
@@ -1549,19 +1553,21 @@
         }
 
         // ============================================================================
-        // MOBILE KEYBOARD FIX
+        // MOBILE KEYBOARD FIX (page stays still like native app)
         // ============================================================================
         (function() {
             const container = document.querySelector('.container');
             const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+            let initialHeight = window.innerHeight;
             
             if (window.visualViewport) {
-                let initialHeight = window.visualViewport.height;
+                initialHeight = window.visualViewport.height;
                 
                 window.visualViewport.addEventListener('resize', () => {
                     const currentHeight = window.visualViewport.height;
                     const keyboardOpen = currentHeight < initialHeight - 100;
                     
+                    // Resize container to fit available space without moving anything
                     container.style.height = currentHeight + 'px';
                     
                     if (keyboardOpen) {
@@ -1569,33 +1575,39 @@
                     } else {
                         container.classList.remove('keyboard-open');
                         container.style.height = '';
-                        initialHeight = currentHeight;
                     }
                     
                     setTimeout(scrollToBottom, 50);
                 });
                 
-                window.visualViewport.addEventListener('scroll', () => {
-                    container.style.transform = `translateY(${window.visualViewport.offsetTop}px)`;
+                // Prevent iOS from scrolling the viewport itself
+                window.visualViewport.addEventListener('scroll', (e) => {
+                    e.preventDefault && e.preventDefault();
+                    window.scrollTo(0, 0);
                 });
             }
             
             DOM.messageInput.addEventListener('focus', () => {
                 setTimeout(() => {
                     scrollToBottom();
-                    if (isIOS) {
-                        DOM.messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                    }
-                }, 350);
+                    window.scrollTo(0, 0);
+                }, 300);
             });
             
             DOM.messageInput.addEventListener('blur', () => {
                 setTimeout(() => {
                     container.classList.remove('keyboard-open');
                     container.style.height = '';
-                    container.style.transform = '';
-                }, 100);
+                    window.scrollTo(0, 0);
+                }, 150);
             });
+            
+            // Prevent body scroll on iOS
+            document.body.addEventListener('touchmove', (e) => {
+                if (!e.target.closest('.messages-container, .diary-content, .sheet-content')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
         })();
 
         // ============================================================================
