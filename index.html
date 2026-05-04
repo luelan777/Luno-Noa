@@ -411,8 +411,8 @@
         /* Noa Dropdown Menu */
         .noa-dropdown {
             position: absolute;
-            bottom: calc(100% + 8px);
-            left: 0;
+            top: calc(100% + 8px);
+            right: 0;
             background: var(--surface2);
             border: 1px solid var(--border);
             border-radius: 14px;
@@ -538,13 +538,13 @@
 
         .diary-content {
             position: relative;
-            width: 90%;
-            max-width: 460px;
-            max-height: 85dvh;
+            width: 95%;
+            max-width: 500px;
+            max-height: 90dvh;
             background: var(--surface2);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 20px;
+            padding: 24px;
             overflow-y: auto;
             transform: scale(0.95);
             opacity: 0;
@@ -575,14 +575,15 @@
 
         .diary-input {
             width: 100%;
-            min-height: 80px;
+            min-height: 140px;
             background: var(--input-bg);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 12px;
+            padding: 16px;
             color: var(--text);
-            font-size: 0.85rem;
-            resize: none;
+            font-size: 1rem;
+            line-height: 1.7;
+            resize: vertical;
             outline: none;
             margin-bottom: 12px;
         }
@@ -601,11 +602,12 @@
 
         .diary-entries { display: flex; flex-direction: column; gap: 8px; }
         .diary-entry {
-            padding: 10px 12px;
-            border-radius: 12px;
+            padding: 16px 16px 16px 20px;
+            border-radius: 14px;
             border: 1px solid var(--border);
             background: var(--surface);
             position: relative;
+            border-left: 4px solid var(--pink);
         }
         .diary-entry-pin {
             position: absolute;
@@ -615,8 +617,26 @@
             height: 10px;
             border-radius: 50%;
         }
-        .diary-entry-date { font-size: 0.6rem; color: var(--text-faint); margin-bottom: 4px; }
-        .diary-entry-text { font-size: 0.82rem; color: var(--text); line-height: 1.4; }
+        .diary-entry-date { font-size: 0.68rem; color: var(--text-faint); margin-bottom: 6px; letter-spacing: 0.02em; }
+        .diary-entry-text { font-size: 0.9rem; color: var(--text); line-height: 1.7; white-space: pre-wrap; }
+
+        .diary-export-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: all 200ms var(--ease);
+        }
+        .diary-export-btn:hover { border-color: var(--pink); color: var(--pink); }
 
         /* Hidden */
         #file-input { display: none; }
@@ -636,7 +656,16 @@
         <div class="top-bar">
             <span class="top-bar-title">Luno</span>
             <div class="top-bar-actions">
-                <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme">
+                <div style="position:relative;">
+                    <button class="noa-menu-btn" onclick="toggleNoaMenu()">Noa ⚙️</button>
+                    <div class="noa-dropdown" id="noa-dropdown">
+                        <button class="noa-dropdown-item" onclick="openNoaMenuItem('mem0')"><span class="item-icon">🧠</span>Mem0</button>
+                        <button class="noa-dropdown-item" onclick="openNoaMenuItem('substack')"><span class="item-icon">📝</span>Substack</button>
+                        <button class="noa-dropdown-item" onclick="openNoaMenuItem('diary')"><span class="item-icon">📖</span>Diario de Noa</button>
+                        <button class="noa-dropdown-item" onclick="openNoaMenuItem('lovense')"><span class="item-icon">💜</span>Lovense</button>
+                    </div>
+                </div>
+                <button class="btn-icon" onclick="toggleTheme()" title="Tema">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                     </svg>
@@ -705,19 +734,13 @@
 
                 <!-- Input Area -->
                 <div class="input-area">
-                    <div style="position:relative;">
-                        <button class="noa-menu-btn" onclick="toggleNoaMenu()">Noa ⚙️</button>
-                        <div class="noa-dropdown" id="noa-dropdown">
-                            <button class="noa-dropdown-item" onclick="openNoaMenuItem('mem0')"><span class="item-icon">🧠</span>Mem0</button>
-                            <button class="noa-dropdown-item" onclick="openNoaMenuItem('substack')"><span class="item-icon">📝</span>Substack</button>
-                            <button class="noa-dropdown-item" onclick="openNoaMenuItem('diary')"><span class="item-icon">📖</span>Diario de Noa</button>
-                            <button class="noa-dropdown-item" onclick="openNoaMenuItem('lovense')"><span class="item-icon">💜</span>Lovense</button>
-                        </div>
-                    </div>
+                    <button class="btn-icon" onclick="toggleCapabilities()" title="Capacidades">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
                     <textarea id="message-input" placeholder="Escribe un mensaje..." rows="1"></textarea>
                     <div class="input-actions">
-                        <button class="btn-icon" onclick="toggleCapabilities()" title="Capacidades">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <button class="btn-icon" onclick="openConfig()" title="Configuración">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                         </button>
                         <button id="send-btn" class="btn-send" onclick="sendMessage()" disabled title="Enviar">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -798,6 +821,7 @@
 
             <textarea class="diary-input" id="diary-input" placeholder="Escribe una entrada..."></textarea>
             <button class="diary-save-btn" onclick="saveDiaryEntry()">Guardar Entrada</button>
+            <button class="diary-export-btn" onclick="exportDiary()">📥 Exportar Diario (.txt)</button>
 
             <div class="diary-entries" id="diary-entries"></div>
         </div>
@@ -1178,12 +1202,28 @@
             const entries = JSON.parse(localStorage.getItem(CONFIG.storagePrefix + 'diary') || '[]');
 
             container.innerHTML = entries.map(entry => `
-                <div class="diary-entry" style="font-family: ${entry.font}">
+                <div class="diary-entry" style="font-family: ${entry.font}; border-left-color: ${entry.pin}">
                     <div class="diary-entry-pin" style="background: ${entry.pin}"></div>
                     <div class="diary-entry-date">${entry.date}</div>
                     <div class="diary-entry-text">${entry.text}</div>
                 </div>
             `).join('');
+        }
+
+        function exportDiary() {
+            const entries = JSON.parse(localStorage.getItem(CONFIG.storagePrefix + 'diary') || '[]');
+            if (entries.length === 0) { alert('No hay entradas para exportar.'); return; }
+            let content = '📖 Diario de Noa\n' + '='.repeat(30) + '\n\n';
+            entries.forEach(entry => {
+                content += `[${entry.date}]\n${entry.text}\n\n---\n\n`;
+            });
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diario-noa-${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         // ============================================================================
