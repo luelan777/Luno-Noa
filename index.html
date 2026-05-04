@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0d0f1a" id="theme-meta">
-    <meta name="description" content="Noa - AI Chatbot powered by Flowise">
+    <meta name="description" content="Luno-Noa - AI Chatbot powered by Flowise">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Noa">
+    <meta name="apple-mobile-web-app-title" content="Luno">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Noa</title>
+    <title>Luno</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><circle cx='90' cy='90' r='85' fill='%23e8559a'/></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><circle cx='90' cy='90' r='85' fill='%23e8559a'/></svg>">
@@ -47,26 +47,12 @@
             --pink: #cc4488;
             --pink-soft: #e890bc;
             --pink-glow: rgba(204, 68, 136, 0.18);
-            --theme-meta: #f2ecf8;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        *::before, *::after { box-sizing: border-box; }
 
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
-
-        html {
-            height: 100%;
-            -webkit-text-size-adjust: 100%;
-            -webkit-user-select: none;
-            user-select: none;
-        }
+        html { height: 100%; -webkit-text-size-adjust: 100%; -webkit-user-select: none; user-select: none; }
 
         body {
             height: 100dvh;
@@ -85,39 +71,11 @@
             left: 0;
         }
 
-        button {
-            cursor: pointer;
-            background: none;
-            border: none;
-            font: inherit;
-            color: inherit;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+        button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        textarea, input { font: inherit; color: inherit; -webkit-user-select: text; user-select: text; }
 
-        textarea {
-            font: inherit;
-            color: inherit;
-            -webkit-user-select: text;
-            user-select: text;
-        }
+        @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
-        input {
-            font: inherit;
-            color: inherit;
-            -webkit-user-select: text;
-            user-select: text;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* Main Container */
         .container {
             width: 100%;
             max-width: 500px;
@@ -129,345 +87,29 @@
             z-index: 1;
         }
 
-        /* Orb Stage */
-        .orb-stage {
-            flex: 1;
+        /* Top Bar */
+        .top-bar {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 16px;
-            padding: 24px 16px;
-            pointer-events: none;
-            position: relative;
+            padding: 12px 16px;
+            padding-top: max(12px, env(safe-area-inset-top));
+            flex-shrink: 0;
+            z-index: 20;
         }
 
-        .orb-wrapper {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #orb-canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(0 0 20px var(--pink-glow));
-        }
-
-        .status-label {
-            font-size: 0.72rem;
-            font-weight: 400;
+        .top-bar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
             letter-spacing: 0.3em;
             text-transform: uppercase;
             color: var(--text-faint);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 400ms var(--ease);
         }
 
-        .status-label.active {
-            color: var(--pink);
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .status-dot.pulse {
-            animation: pulse 1.2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.5;
-                transform: scale(0.8);
-            }
-        }
-
-        /* Chat Panel */
-        .chat-panel {
-            flex: 0 0 auto;
-            display: flex;
-            flex-direction: column;
-            height: 44dvh;
-            background: linear-gradient(to top, var(--surface) 80%, transparent);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid var(--border);
-            padding: 12px 16px max(16px, env(safe-area-inset-bottom));
-            gap: 12px;
-            transition: background 600ms var(--ease);
-            overflow: hidden;
-            z-index: 10;
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-right: 4px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border) transparent;
-            mask-image: linear-gradient(to bottom, black 0%, black 85%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 0%, black 85%, transparent 100%);
-        }
-
-        .messages-container::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .messages-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .messages-container::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 2px;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            word-wrap: break-word;
-            animation: slideIn 280ms var(--ease);
-        }
-
-        .message.user {
-            align-self: flex-end;
-            background: rgba(232, 85, 154, 0.14);
-            border: 1px solid rgba(232, 85, 154, 0.28);
-            border-bottom-right-radius: 4px;
-            color: var(--text);
-        }
-
-        [data-theme="light"] .message.user {
-            background: rgba(204, 68, 136, 0.09);
-            border-color: rgba(204, 68, 136, 0.18);
-        }
-
-        .message.assistant {
-            align-self: flex-start;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-bottom-left-radius: 4px;
-            color: var(--text);
-        }
-
-        .message.image-preview {
-            max-width: 100%;
-            padding: 6px;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-        }
-
-        .message.image-preview img {
-            max-width: 160px;
-            max-height: 130px;
-            border-radius: 8px;
-            display: block;
-        }
-
-        .typing-indicator {
+        .top-bar-actions {
             display: flex;
             gap: 4px;
-            align-self: flex-start;
-            padding: 10px 14px;
-        }
-
-        .typing-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--text-faint);
-            animation: typing 1.2s ease-in-out infinite;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 100% {
-                transform: translateY(0);
-                opacity: 0.4;
-            }
-            50% {
-                transform: translateY(-6px);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px) scale(0.98);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Toolbar */
-        .toolbar {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .image-preview-box {
-            display: none;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            animation: slideIn 200ms var(--ease);
-        }
-
-        .image-preview-box.show {
-            display: flex;
-        }
-
-        .image-preview-box img {
-            width: 36px;
-            height: 36px;
-            border-radius: 6px;
-            object-fit: cover;
-        }
-
-        .image-preview-box button {
-            margin-left: auto;
-            padding: 4px;
-            color: var(--pink);
-            font-size: 1.2rem;
-            line-height: 1;
-        }
-
-        .capabilities-chips {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: max-height 320ms var(--ease), opacity 260ms var(--ease);
-            padding-right: 4px;
-        }
-
-        .capabilities-chips::-webkit-scrollbar {
-            display: none;
-        }
-
-        .capabilities-chips.show {
-            max-height: 44px;
-            opacity: 1;
-        }
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 14px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--surface2);
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            flex-shrink: 0;
-            transition: all 160ms var(--ease);
-            pointer-events: auto;
-        }
-
-        .chip:hover {
-            border-color: var(--border-hi);
-            color: var(--pink);
-            transform: translateY(-1px);
-        }
-
-        .chip.active {
-            border-color: var(--pink);
-            color: var(--pink);
-            background: rgba(232, 85, 154, 0.08);
-        }
-
-        [data-theme="light"] .chip.active {
-            background: rgba(204, 68, 136, 0.08);
-        }
-
-        .chip svg {
-            width: 12px;
-            height: 12px;
-        }
-
-        /* Input Area */
-        .input-area {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 8px 8px 8px 14px;
-            transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
-            flex-shrink: 0;
-        }
-
-        .input-area:focus-within {
-            border-color: var(--border-hi);
-            box-shadow: 0 0 0 3px var(--pink-glow);
-        }
-
-        #message-input {
-            flex: 1;
-            background: none;
-            border: none;
-            outline: none;
-            padding: 10px 0;
-            min-height: 40px;
-            max-height: 120px;
-            resize: none;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            color: var(--text);
-        }
-
-        #message-input::placeholder {
-            color: var(--text-faint);
-        }
-
-        .input-actions {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding-bottom: 2px;
-            flex-shrink: 0;
         }
 
         .btn-icon {
@@ -482,206 +124,17 @@
             flex-shrink: 0;
             pointer-events: auto;
         }
+        .btn-icon:hover { background: var(--surface2); color: var(--pink); }
+        .btn-icon:active { transform: scale(0.95); }
+        .btn-icon svg { width: 20px; height: 20px; }
 
-        .btn-icon:hover {
-            background: var(--surface2);
-            color: var(--pink);
-        }
-
-        .btn-icon svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .btn-icon:active {
-            transform: scale(0.95);
-        }
-
-        .btn-send {
-            background: var(--pink);
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 200ms var(--ease);
-            flex-shrink: 0;
-            pointer-events: auto;
-        }
-
-        .btn-send:hover:not(:disabled) {
-            transform: scale(1.08);
-            box-shadow: 0 4px 12px var(--pink-glow);
-        }
-
-        .btn-send:active:not(:disabled) {
-            transform: scale(0.95);
-        }
-
-        .btn-send:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .btn-send svg {
-            width: 18px;
-            height: 18px;
-            stroke-width: 2.5;
-        }
-
-        /* Config Sheet */
-        .config-sheet {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1000;
-            visibility: hidden;
-            pointer-events: none;
-            transition: visibility 400ms var(--ease);
-            display: flex;
-            align-items: flex-end;
-        }
-
-        .config-sheet.open {
-            visibility: visible;
-            pointer-events: auto;
-        }
-
-        .sheet-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            opacity: 0;
-            transition: opacity 400ms var(--ease);
-        }
-
-        .config-sheet.open .sheet-overlay {
-            opacity: 1;
-        }
-
-        .sheet-content {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            background: var(--surface2);
-            border-top: 1px solid var(--border);
-            border-radius: 24px 24px 0 0;
-            padding: 24px 20px max(24px, env(safe-area-inset-bottom));
-            transform: translateY(100%);
-            transition: transform 400ms var(--ease);
-            max-height: 90dvh;
-            overflow-y: auto;
-            scrollbar-width: thin;
-        }
-
-        .config-sheet.open .sheet-content {
-            transform: translateY(0);
-        }
-
-        .sheet-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 12px;
-        }
-
-        .sheet-header h2 {
-            font-size: 1.1rem;
-            font-weight: 500;
-            letter-spacing: 0.02em;
-        }
-
-        .sheet-header .btn-icon {
-            margin-right: -8px;
-        }
-
-        .config-field {
-            margin-bottom: 16px;
-        }
-
-        .config-field label {
-            display: block;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .config-field input {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 14px;
-            color: var(--text);
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 200ms var(--ease);
-        }
-
-        .config-field input:focus {
-            border-color: var(--pink);
-        }
-
-        .config-field input::placeholder {
-            color: var(--text-faint);
-        }
-
-        .config-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-            margin-top: 16px;
-        }
-
-        .config-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 200ms var(--ease);
-            cursor: pointer;
-        }
-
-        .config-btn:hover {
-            border-color: var(--border-hi);
-            background: var(--surface2);
-            color: var(--pink);
-        }
-
-        .config-btn svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* Status Bar (emotion + connection) */
+        /* Status Bar */
         .status-bar {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            padding: 6px 16px;
+            padding: 4px 16px;
             flex-shrink: 0;
         }
 
@@ -699,21 +152,9 @@
             font-size: 0.8rem;
             color: var(--text-muted);
         }
-
-        .emotion-selector:hover {
-            border-color: var(--border-hi);
-        }
-
-        .emotion-emoji {
-            font-size: 1rem;
-            line-height: 1;
-        }
-
-        .emotion-text {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.02em;
-        }
+        .emotion-selector:hover { border-color: var(--border-hi); }
+        .emotion-emoji { font-size: 1rem; line-height: 1; }
+        .emotion-text { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.02em; }
 
         .emotion-dropdown {
             position: absolute;
@@ -734,12 +175,7 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.3);
             min-width: 180px;
         }
-
-        .emotion-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) scale(1);
-        }
+        .emotion-dropdown.show { opacity: 1; visibility: visible; transform: translateX(-50%) scale(1); }
 
         .emotion-option {
             display: flex;
@@ -750,23 +186,10 @@
             border-radius: 10px;
             cursor: pointer;
             transition: all 150ms var(--ease);
-            border: none;
-            background: none;
         }
-
-        .emotion-option:hover {
-            background: var(--pink-glow);
-        }
-
-        .emotion-option .emoji {
-            font-size: 1.2rem;
-        }
-
-        .emotion-option .label {
-            font-size: 0.6rem;
-            color: var(--text-faint);
-            white-space: nowrap;
-        }
+        .emotion-option:hover { background: var(--pink-glow); }
+        .emotion-option .emoji { font-size: 1.2rem; }
+        .emotion-option .label { font-size: 0.6rem; color: var(--text-faint); white-space: nowrap; }
 
         .connection-badge {
             display: flex;
@@ -781,96 +204,429 @@
             letter-spacing: 0.02em;
             transition: all 300ms var(--ease);
         }
+        .connection-dot { width: 7px; height: 7px; border-radius: 50%; transition: background 300ms var(--ease); }
+        .connection-badge.online .connection-dot { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+        .connection-badge.online { color: #22c55e; border-color: rgba(34,197,94,0.25); }
+        .connection-badge.unstable .connection-dot { background: #f59e0b; box-shadow: 0 0 6px rgba(245,158,11,0.5); }
+        .connection-badge.unstable { color: #f59e0b; border-color: rgba(245,158,11,0.25); }
+        .connection-badge.offline .connection-dot { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+        .connection-badge.offline { color: #ef4444; border-color: rgba(239,68,68,0.25); }
 
-        .connection-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            transition: background 300ms var(--ease);
-        }
-
-        .connection-badge.online .connection-dot {
-            background: #22c55e;
-            box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
-        }
-
-        .connection-badge.online {
-            color: #22c55e;
-            border-color: rgba(34, 197, 94, 0.25);
-        }
-
-        .connection-badge.unstable .connection-dot {
-            background: #f59e0b;
-            box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
-        }
-
-        .connection-badge.unstable {
-            color: #f59e0b;
-            border-color: rgba(245, 158, 11, 0.25);
-        }
-
-        .connection-badge.offline .connection-dot {
-            background: #ef4444;
-            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
-        }
-
-        .connection-badge.offline {
-            color: #ef4444;
-            border-color: rgba(239, 68, 68, 0.25);
-        }
-
-        /* Top Bar */
-        .top-bar {
+        /* Orb Stage */
+        .orb-stage {
+            flex: 1;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            padding: 12px 16px;
-            padding-top: max(12px, env(safe-area-inset-top));
-            flex-shrink: 0;
-            z-index: 20;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px;
+            pointer-events: none;
+            position: relative;
+        }
+        .orb-wrapper { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; }
+        #orb-canvas { display: block; width: 100%; height: 100%; filter: drop-shadow(0 0 20px var(--pink-glow)); }
+        .status-label {
+            font-size: 0.72rem;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-faint);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 400ms var(--ease);
+        }
+        .status-label.active { color: var(--pink); }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .status-dot.pulse { animation: pulse 1.2s ease-in-out infinite; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+
+        /* Chat Panel */
+        .chat-panel {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            height: 44dvh;
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 12px 16px max(16px, env(safe-area-inset-bottom));
+            gap: 10px;
+            transition: background 600ms var(--ease);
+            overflow: hidden;
+            z-index: 10;
+            border-radius: 24px 24px 0 0;
         }
 
-        .top-bar-title {
-            font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        .messages-container::-webkit-scrollbar { width: 4px; }
+        .messages-container::-webkit-scrollbar-track { background: transparent; }
+        .messages-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        /* Date Separator */
+        .date-separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 0 4px;
+        }
+        .date-separator span {
+            font-size: 0.65rem;
+            color: var(--text-faint);
+            letter-spacing: 0.05em;
+            background: var(--surface2);
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+        }
+
+        /* Messages */
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            animation: slideIn 280ms var(--ease);
+        }
+        .message-wrapper.user { align-items: flex-end; }
+        .message-wrapper.assistant { align-items: flex-start; }
+
+        .message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .message.user {
+            background: rgba(232, 85, 154, 0.14);
+            border: 1px solid rgba(232, 85, 154, 0.28);
+            border-bottom-right-radius: 4px;
+            color: var(--text);
+        }
+        [data-theme="light"] .message.user { background: rgba(204, 68, 136, 0.09); border-color: rgba(204, 68, 136, 0.18); }
+        .message.assistant {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
             color: var(--text);
         }
 
-        .top-bar-actions {
-            display: flex;
-            gap: 4px;
-            align-items: center;
+        .message-time {
+            font-size: 0.6rem;
+            color: var(--text-faint);
+            padding: 0 4px;
+            letter-spacing: 0.02em;
         }
 
-        /* Hidden Elements */
-        #file-input {
-            display: none;
+        .message.image-preview { max-width: 100%; padding: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; }
+        .message.image-preview img { max-width: 160px; max-height: 130px; border-radius: 8px; display: block; }
+
+        .typing-indicator { display: flex; gap: 4px; align-self: flex-start; padding: 10px 14px; }
+        .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); animation: typing 1.2s ease-in-out infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-6px); opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* Toolbar */
+        .toolbar { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+        .image-preview-box { display: none; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; animation: slideIn 200ms var(--ease); }
+        .image-preview-box.show { display: flex; }
+        .image-preview-box img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; }
+        .image-preview-box button { margin-left: auto; padding: 4px; color: var(--pink); font-size: 1.2rem; line-height: 1; }
+
+        .capabilities-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 320ms var(--ease), opacity 260ms var(--ease); }
+        .capabilities-chips::-webkit-scrollbar { display: none; }
+        .capabilities-chips.show { max-height: 44px; opacity: 1; }
+
+        .chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; transition: all 160ms var(--ease); }
+        .chip:hover { border-color: var(--border-hi); color: var(--pink); transform: translateY(-1px); }
+        .chip.active { border-color: var(--pink); color: var(--pink); background: rgba(232, 85, 154, 0.08); }
+        .chip svg { width: 12px; height: 12px; }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 8px 8px 8px 14px;
+            transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
+            flex-shrink: 0;
         }
+        .input-area:focus-within { border-color: var(--border-hi); box-shadow: 0 0 0 3px var(--pink-glow); }
+
+        #message-input { flex: 1; background: none; border: none; outline: none; padding: 10px 0; min-height: 40px; max-height: 120px; resize: none; font-size: 0.95rem; line-height: 1.4; color: var(--text); }
+        #message-input::placeholder { color: var(--text-faint); }
+
+        .input-actions { display: flex; align-items: center; gap: 4px; padding-bottom: 2px; flex-shrink: 0; }
+
+        .btn-send {
+            background: var(--pink);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 200ms var(--ease);
+            flex-shrink: 0;
+        }
+        .btn-send:hover:not(:disabled) { transform: scale(1.08); box-shadow: 0 4px 12px var(--pink-glow); }
+        .btn-send:active:not(:disabled) { transform: scale(0.95); }
+        .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-send svg { width: 18px; height: 18px; stroke-width: 2.5; }
+
+        /* Noa Menu Button */
+        .noa-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 500;
+            transition: all 200ms var(--ease);
+        }
+        .noa-menu-btn:hover { border-color: var(--border-hi); color: var(--pink); }
+
+        /* Noa Dropdown Menu */
+        .noa-dropdown {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 0;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 8px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: all 200ms var(--ease);
+            z-index: 200;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .noa-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+
+        .noa-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            color: var(--text);
+            transition: all 150ms var(--ease);
+            width: 100%;
+            text-align: left;
+        }
+        .noa-dropdown-item:hover { background: var(--pink-glow); color: var(--pink); }
+        .noa-dropdown-item .item-icon { font-size: 1.1rem; }
+
+        /* Config Sheet */
+        .config-sheet {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 1000;
+            visibility: hidden;
+            pointer-events: none;
+            transition: visibility 400ms var(--ease);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .config-sheet.open { visibility: visible; pointer-events: auto; }
+
+        .sheet-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 400ms var(--ease);
+        }
+        .config-sheet.open .sheet-overlay { opacity: 1; }
+
+        .sheet-content {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            background: var(--surface2);
+            border-top: 1px solid var(--border);
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px max(24px, env(safe-area-inset-bottom));
+            transform: translateY(100%);
+            transition: transform 400ms var(--ease);
+            max-height: 90dvh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        .config-sheet.open .sheet-content { transform: translateY(0); }
+
+        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; }
+        .sheet-header h2 { font-size: 1.1rem; font-weight: 500; letter-spacing: 0.02em; }
+        .sheet-header .btn-icon { margin-right: -8px; }
+
+        .config-field { margin-bottom: 16px; }
+        .config-field label { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+        .config-field input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--text); font-size: 0.9rem; outline: none; transition: border-color 200ms var(--ease); }
+        .config-field input:focus { border-color: var(--pink); }
+        .config-field input::placeholder { color: var(--text-faint); }
+
+        .config-actions { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 16px; }
+
+        .config-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 200ms var(--ease);
+            cursor: pointer;
+        }
+        .config-btn:hover { border-color: var(--border-hi); background: var(--surface2); color: var(--pink); }
+        .config-btn svg { width: 16px; height: 16px; }
+
+        .btn-connect {
+            background: var(--pink);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .btn-connect:hover { background: #d44a8a; color: white; transform: scale(1.02); }
+
+        /* Diary Sheet */
+        .diary-sheet {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 1100;
+            visibility: hidden;
+            pointer-events: none;
+            transition: visibility 400ms var(--ease);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .diary-sheet.open { visibility: visible; pointer-events: auto; }
+        .diary-sheet.open .sheet-overlay { opacity: 1; }
+
+        .diary-content {
+            position: relative;
+            width: 90%;
+            max-width: 460px;
+            max-height: 85dvh;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 300ms var(--ease);
+        }
+        .diary-sheet.open .diary-content { transform: scale(1); opacity: 1; }
+
+        .diary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .diary-header h2 { font-size: 1rem; font-weight: 600; color: var(--pink); }
+
+        .diary-toolbar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+        .diary-toolbar button {
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            transition: all 150ms var(--ease);
+        }
+        .diary-toolbar button:hover { border-color: var(--pink); color: var(--pink); }
+        .diary-toolbar button.active { background: var(--pink-glow); border-color: var(--pink); color: var(--pink); }
+
+        .pin-colors { display: flex; gap: 4px; align-items: center; }
+        .pin-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 150ms var(--ease); }
+        .pin-dot:hover { transform: scale(1.2); }
+        .pin-dot.active { border-color: var(--text); }
+
+        .diary-input {
+            width: 100%;
+            min-height: 80px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--text);
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
+            margin-bottom: 12px;
+        }
+        .diary-input:focus { border-color: var(--pink); }
+
+        .diary-save-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            background: var(--pink);
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+
+        .diary-entries { display: flex; flex-direction: column; gap: 8px; }
+        .diary-entry {
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            position: relative;
+        }
+        .diary-entry-pin {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .diary-entry-date { font-size: 0.6rem; color: var(--text-faint); margin-bottom: 4px; }
+        .diary-entry-text { font-size: 0.82rem; color: var(--text); line-height: 1.4; }
+
+        /* Hidden */
+        #file-input { display: none; }
 
         /* Responsive */
         @media (max-width: 480px) {
-            .container {
-                max-width: 100%;
-            }
-
-            .orb-stage {
-                padding: 16px 12px;
-                gap: 12px;
-            }
-
-            .orb-wrapper {
-                width: 240px;
-                height: 240px;
-            }
-
-            .message {
-                font-size: 0.85rem;
-            }
-
-            .chat-panel {
-                height: 50dvh;
-            }
+            .container { max-width: 100%; }
+            .orb-wrapper { width: 200px; height: 200px; }
+            .message { font-size: 0.85rem; }
+            .chat-panel { height: 50dvh; }
         }
     </style>
 </head>
@@ -878,17 +634,11 @@
     <div class="container">
         <!-- Top Bar -->
         <div class="top-bar">
-            <span class="top-bar-title">Noa</span>
+            <span class="top-bar-title">Luno</span>
             <div class="top-bar-actions">
                 <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme">
-                    <svg id="theme-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                    </svg>
-                </button>
-                <button class="btn-icon" onclick="openConfig()" title="Settings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                     </svg>
                 </button>
             </div>
@@ -900,38 +650,14 @@
                 <span class="emotion-emoji" id="emotion-emoji">😊</span>
                 <span class="emotion-text" id="emotion-text">Feliz</span>
                 <div class="emotion-dropdown" id="emotion-dropdown">
-                    <button class="emotion-option" onclick="selectEmotion(event, '😊', 'Feliz')">
-                        <span class="emoji">😊</span>
-                        <span class="label">Feliz</span>
-                    </button>
-                    <button class="emotion-option" onclick="selectEmotion(event, '😢', 'Triste')">
-                        <span class="emoji">😢</span>
-                        <span class="label">Triste</span>
-                    </button>
-                    <button class="emotion-option" onclick="selectEmotion(event, '🤔', 'Pensando')">
-                        <span class="emoji">🤔</span>
-                        <span class="label">Pensando</span>
-                    </button>
-                    <button class="emotion-option" onclick="selectEmotion(event, '😠', 'Enojado')">
-                        <span class="emoji">😠</span>
-                        <span class="label">Enojado</span>
-                    </button>
-                    <button class="emotion-option" onclick="selectEmotion(event, '🧐', 'Introspectivo')">
-                        <span class="emoji">🧐</span>
-                        <span class="label">Introspectivo</span>
-                    </button>
-                    <button class="emotion-option" onclick="selectEmotion(event, '😒', 'Celoso')">
-                        <span class="emoji">😒</span>
-                        <span class="label">Celoso</span>
-                    </button>
-                    <button class="emotion-option" onclick="selectEmotion(event, '😴', 'Cansado')">
-                        <span class="emoji">😴</span>
-                        <span class="label">Cansado</span>
-                    </button>
-                    <button class="emotion-option" onclick="selectEmotion(event, '🥰', 'Amoroso')">
-                        <span class="emoji">🥰</span>
-                        <span class="label">Amoroso</span>
-                    </button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😊', 'Feliz')"><span class="emoji">😊</span><span class="label">Feliz</span></button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😢', 'Triste')"><span class="emoji">😢</span><span class="label">Triste</span></button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '🤔', 'Pensando')"><span class="emoji">🤔</span><span class="label">Pensando</span></button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😠', 'Enojado')"><span class="emoji">😠</span><span class="label">Enojado</span></button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '🧐', 'Introspectivo')"><span class="emoji">🧐</span><span class="label">Introspectivo</span></button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😒', 'Celoso')"><span class="emoji">😒</span><span class="label">Celoso</span></button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '😴', 'Cansado')"><span class="emoji">😴</span><span class="label">Cansado</span></button>
+                    <button class="emotion-option" onclick="selectEmotion(event, '🥰', 'Amoroso')"><span class="emoji">🥰</span><span class="label">Amoroso</span></button>
                 </div>
             </div>
             <div class="connection-badge online" id="connection-badge">
@@ -943,7 +669,7 @@
         <!-- Orb Stage -->
         <div class="orb-stage">
             <div class="orb-wrapper">
-                <canvas id="orb-canvas" width="280" height="280"></canvas>
+                <canvas id="orb-canvas" width="240" height="240"></canvas>
             </div>
             <div class="status-label" id="status-label">
                 <div class="status-dot" id="status-dot"></div>
@@ -953,66 +679,48 @@
 
         <!-- Chat Panel -->
         <div class="chat-panel">
-            <!-- Messages -->
-            <div class="messages-container" id="messages-container">
-                <div class="message assistant">
-                    Welcome to Noa. How can I help you today?
-                </div>
-            </div>
+            <div class="messages-container" id="messages-container"></div>
 
             <!-- Toolbar -->
             <div class="toolbar">
-                <!-- Image Preview -->
                 <div class="image-preview-box" id="image-preview-box">
                     <img id="preview-image" src="" alt="Preview">
                     <button onclick="clearImagePreview()">✕</button>
                 </div>
 
-                <!-- Capabilities Chips -->
                 <div class="capabilities-chips" id="capabilities-chips">
                     <button class="chip" data-capability="vision" onclick="toggleCapability(this)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         Vision
                     </button>
                     <button class="chip" data-capability="search" onclick="toggleCapability(this)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="M21 21l-4.35-4.35"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                         Web Search
                     </button>
                     <button class="chip" data-capability="mem0" onclick="toggleCapability(this)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                         Mem0
                     </button>
                 </div>
 
                 <!-- Input Area -->
                 <div class="input-area">
-                    <button class="btn-icon" onclick="toggleCapabilities()" title="Add capabilities">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                    </button>
-                    <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
+                    <div style="position:relative;">
+                        <button class="noa-menu-btn" onclick="toggleNoaMenu()">Noa ⚙️</button>
+                        <div class="noa-dropdown" id="noa-dropdown">
+                            <button class="noa-dropdown-item" onclick="openNoaMenuItem('mem0')"><span class="item-icon">🧠</span>Mem0</button>
+                            <button class="noa-dropdown-item" onclick="openNoaMenuItem('substack')"><span class="item-icon">📝</span>Substack</button>
+                            <button class="noa-dropdown-item" onclick="openNoaMenuItem('diary')"><span class="item-icon">📖</span>Diario de Noa</button>
+                            <button class="noa-dropdown-item" onclick="openNoaMenuItem('lovense')"><span class="item-icon">💜</span>Lovense</button>
+                        </div>
+                    </div>
+                    <textarea id="message-input" placeholder="Escribe un mensaje..." rows="1"></textarea>
                     <div class="input-actions">
-                        <button class="btn-icon" onclick="openConfig()" title="Settings">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                            </svg>
+                        <button class="btn-icon" onclick="toggleCapabilities()" title="Capacidades">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
-                        <button id="send-btn" class="btn-send" onclick="sendMessage()" disabled title="Send message">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13"/>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                            </svg>
+                        <button id="send-btn" class="btn-send" onclick="sendMessage()" disabled title="Enviar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         </button>
                     </div>
                 </div>
@@ -1025,47 +733,73 @@
         <div class="sheet-overlay" onclick="closeConfig()"></div>
         <div class="sheet-content">
             <div class="sheet-header">
-                <h2>Configuration</h2>
+                <h2>Configuración</h2>
                 <button class="btn-icon" onclick="closeConfig()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
 
             <div class="config-field">
                 <label for="flowise-url">Flowise URL</label>
-                <input type="text" id="flowise-url" placeholder="https://your-flowise-instance.com">
+                <input type="text" id="flowise-url" placeholder="https://tu-instancia-flowise.com">
             </div>
-
             <div class="config-field">
                 <label for="chatflow-id">Chatflow ID</label>
-                <input type="text" id="chatflow-id" placeholder="Your chatflow UUID">
+                <input type="text" id="chatflow-id" placeholder="Tu chatflow UUID">
             </div>
-
             <div class="config-field">
-                <label for="api-key">API Key (Optional)</label>
-                <input type="password" id="api-key" placeholder="Your API key">
+                <label for="api-key">API Key (Opcional)</label>
+                <input type="password" id="api-key" placeholder="Tu API key">
             </div>
 
             <div class="config-actions">
+                <button class="config-btn btn-connect" onclick="connectFlowise()">
+                    Conectar
+                </button>
                 <button class="config-btn" onclick="toggleTheme()">
-                    <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                    </svg>
-                    <span id="theme-text">Light Mode</span>
+                    <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <span id="theme-text">Modo Claro</span>
                 </button>
                 <button class="config-btn" onclick="clearChat()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        <line x1="10" y1="11" x2="10" y2="17"/>
-                        <line x1="14" y1="11" x2="14" y2="17"/>
-                    </svg>
-                    <span>Clear Chat</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <span>Limpiar Chat</span>
+                </button>
+                <button class="config-btn" onclick="requestNotificationPermission()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span>Activar Notificaciones</span>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Diary Sheet -->
+    <div class="diary-sheet" id="diary-sheet">
+        <div class="sheet-overlay" onclick="closeDiary()"></div>
+        <div class="diary-content">
+            <div class="diary-header">
+                <h2>📖 Diario de Noa</h2>
+                <button class="btn-icon" onclick="closeDiary()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+
+            <div class="diary-toolbar">
+                <button onclick="setDiaryFont('Inter')" class="active" id="font-inter">Sans</button>
+                <button onclick="setDiaryFont('Georgia, serif')" id="font-serif">Serif</button>
+                <button onclick="setDiaryFont('monospace')" id="font-mono">Mono</button>
+                <div class="pin-colors">
+                    <div class="pin-dot active" style="background:#e8559a" onclick="setDiaryPin('#e8559a')"></div>
+                    <div class="pin-dot" style="background:#22c55e" onclick="setDiaryPin('#22c55e')"></div>
+                    <div class="pin-dot" style="background:#3b82f6" onclick="setDiaryPin('#3b82f6')"></div>
+                    <div class="pin-dot" style="background:#f59e0b" onclick="setDiaryPin('#f59e0b')"></div>
+                    <div class="pin-dot" style="background:#a855f7" onclick="setDiaryPin('#a855f7')"></div>
+                </div>
+            </div>
+
+            <textarea class="diary-input" id="diary-input" placeholder="Escribe una entrada..."></textarea>
+            <button class="diary-save-btn" onclick="saveDiaryEntry()">Guardar Entrada</button>
+
+            <div class="diary-entries" id="diary-entries"></div>
         </div>
     </div>
 
@@ -1076,11 +810,7 @@
         // ============================================================================
         // CONFIGURATION & STATE
         // ============================================================================
-
-        const CONFIG = {
-            storagePrefix: 'noa_',
-            defaultTheme: 'dark'
-        };
+        const CONFIG = { storagePrefix: 'noa_', defaultTheme: 'dark' };
 
         const STATE = {
             config: {
@@ -1094,13 +824,14 @@
             isThinking: false,
             isStreaming: false,
             currentEmotion: localStorage.getItem('noa_emotion') || 'Feliz',
-            currentEmoji: localStorage.getItem('noa_emoji') || '😊'
+            currentEmoji: localStorage.getItem('noa_emoji') || '😊',
+            diaryPin: '#e8559a',
+            diaryFont: 'Inter'
         };
 
         // ============================================================================
         // DOM ELEMENTS
         // ============================================================================
-
         const DOM = {
             container: document.querySelector('.container'),
             orbCanvas: document.getElementById('orb-canvas'),
@@ -1124,56 +855,81 @@
         // ============================================================================
         // INITIALIZATION
         // ============================================================================
-
         function init() {
-            // Load configuration
             DOM.flowise_url.value = STATE.config.flowise_url;
             DOM.chatflow_id.value = STATE.config.chatflow_id;
             DOM.api_key.value = STATE.config.api_key;
 
-            // Set theme
             setTheme(STATE.theme);
 
-            // Set emotion
             document.getElementById('emotion-emoji').textContent = STATE.currentEmoji;
             document.getElementById('emotion-text').textContent = STATE.currentEmotion;
 
-            // Setup event listeners
             DOM.messageInput.addEventListener('input', handleInputResize);
             DOM.messageInput.addEventListener('keydown', handleInputKeydown);
-            DOM.configSheet.addEventListener('click', handleSheetOverlayClick);
 
-            // Close emotion dropdown when clicking outside
             document.addEventListener('click', (e) => {
                 const selector = document.getElementById('emotion-selector');
                 if (!selector.contains(e.target)) {
                     document.getElementById('emotion-dropdown').classList.remove('show');
                 }
+                const noaDropdown = document.getElementById('noa-dropdown');
+                if (!e.target.closest('.noa-menu-btn') && !noaDropdown.contains(e.target)) {
+                    noaDropdown.classList.remove('show');
+                }
             });
 
-            // Start connection monitoring
             checkConnection();
             setInterval(checkConnection, 10000);
             window.addEventListener('online', checkConnection);
             window.addEventListener('offline', checkConnection);
 
-            // Start orb animation
+            // Add date separator on load
+            addDateSeparator();
+
+            // Load diary entries
+            loadDiaryEntries();
+
             animateOrb();
 
-            // Register service worker
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('./sw.js').catch(err => {
-                        console.log('Service Worker registration failed:', err);
+                        console.log('SW registration failed:', err);
                     });
                 });
             }
         }
 
         // ============================================================================
+        // DATE & TIME
+        // ============================================================================
+        function getSpanishDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return now.toLocaleDateString('es-ES', options);
+        }
+
+        function getTimeString() {
+            const now = new Date();
+            return now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function addDateSeparator() {
+            const today = new Date().toDateString();
+            const lastDate = localStorage.getItem(CONFIG.storagePrefix + 'last_chat_date');
+
+            const separator = document.createElement('div');
+            separator.className = 'date-separator';
+            separator.innerHTML = `<span>${getSpanishDate()} • ${getTimeString()}</span>`;
+            DOM.messagesContainer.appendChild(separator);
+
+            localStorage.setItem(CONFIG.storagePrefix + 'last_chat_date', today);
+        }
+
+        // ============================================================================
         // ORB ANIMATION
         // ============================================================================
-
         let orbAnimationTime = 0;
 
         function animateOrb() {
@@ -1190,21 +946,18 @@
             const isDarkTheme = STATE.theme === 'dark';
             const pinkColor = isDarkTheme ? '232, 85, 154' : '204, 68, 136';
 
-            // Background glow
-            const glowGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 140);
+            const glowGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 120);
             glowGradient.addColorStop(0, `rgba(${pinkColor}, 0.2)`);
             glowGradient.addColorStop(0.5, `rgba(${pinkColor}, 0.05)`);
             glowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
             ctx.fillStyle = glowGradient;
             ctx.fillRect(0, 0, width, height);
 
-            // Animated rings
             const numRings = 3;
             for (let ring = 0; ring < numRings; ring++) {
                 ctx.beginPath();
-                const baseRadius = 70 + ring * 15;
+                const baseRadius = 55 + ring * 14;
                 const waveAmplitude = STATE.isThinking ? 12 : 5;
-                const waveFrequency = 0.1;
 
                 for (let angle = 0; angle < Math.PI * 2; angle += 0.05) {
                     const waveOffset = Math.sin(angle * 3 + t * 2 + ring * Math.PI / 3) * waveAmplitude;
@@ -1212,11 +965,8 @@
                     const x = centerX + Math.cos(angle) * radius;
                     const y = centerY + Math.sin(angle) * radius;
 
-                    if (angle === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
+                    if (angle === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
                 }
 
                 ctx.closePath();
@@ -1226,13 +976,12 @@
                 ctx.stroke();
             }
 
-            // Core circle
-            const coreGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 50);
+            const coreGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 40);
             coreGradient.addColorStop(0, `rgba(${pinkColor}, 0.4)`);
             coreGradient.addColorStop(1, `rgba(${pinkColor}, 0.1)`);
             ctx.fillStyle = coreGradient;
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
+            ctx.arc(centerX, centerY, 40, 0, Math.PI * 2);
             ctx.fill();
 
             orbAnimationTime += 16;
@@ -1242,7 +991,6 @@
         // ============================================================================
         // THEME MANAGEMENT
         // ============================================================================
-
         function setTheme(theme) {
             STATE.theme = theme;
             localStorage.setItem(CONFIG.storagePrefix + 'theme', theme);
@@ -1250,11 +998,11 @@
             if (theme === 'light') {
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.getElementById('theme-meta').content = '#f2ecf8';
-                DOM.themeText.textContent = 'Dark Mode';
+                DOM.themeText.textContent = 'Modo Oscuro';
             } else {
                 document.documentElement.removeAttribute('data-theme');
                 document.getElementById('theme-meta').content = '#0d0f1a';
-                DOM.themeText.textContent = 'Light Mode';
+                DOM.themeText.textContent = 'Modo Claro';
             }
         }
 
@@ -1265,7 +1013,6 @@
         // ============================================================================
         // INPUT HANDLING
         // ============================================================================
-
         function handleInputResize() {
             const input = DOM.messageInput;
             input.style.height = 'auto';
@@ -1276,16 +1023,13 @@
         function handleInputKeydown(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (!DOM.sendBtn.disabled) {
-                    sendMessage();
-                }
+                if (!DOM.sendBtn.disabled) sendMessage();
             }
         }
 
         // ============================================================================
-        // CAPABILITIES MANAGEMENT
+        // CAPABILITIES
         // ============================================================================
-
         function toggleCapabilities() {
             DOM.capabilitiesChips.classList.toggle('show');
         }
@@ -1293,30 +1037,21 @@
         function toggleCapability(button) {
             const capability = button.dataset.capability;
             button.classList.toggle('active');
-
             if (button.classList.contains('active')) {
                 STATE.activeCapabilities.add(capability);
-                if (capability === 'vision') {
-                    DOM.fileInput.click();
-                }
+                if (capability === 'vision') DOM.fileInput.click();
             } else {
                 STATE.activeCapabilities.delete(capability);
-                if (capability === 'vision') {
-                    clearImagePreview();
-                }
+                if (capability === 'vision') clearImagePreview();
             }
         }
 
         function handleFileInput(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             STATE.selectedFile = file;
             const reader = new FileReader();
-            reader.onload = (e) => {
-                DOM.previewImage.src = e.target.result;
-                DOM.imagePreviewBox.classList.add('show');
-            };
+            reader.onload = (e) => { DOM.previewImage.src = e.target.result; DOM.imagePreviewBox.classList.add('show'); };
             reader.readAsDataURL(file);
         }
 
@@ -1325,18 +1060,13 @@
             DOM.imagePreviewBox.classList.remove('show');
             DOM.previewImage.src = '';
             DOM.fileInput.value = '';
-
             const visionChip = document.querySelector('[data-capability="vision"]');
-            if (visionChip) {
-                visionChip.classList.remove('active');
-                STATE.activeCapabilities.delete('vision');
-            }
+            if (visionChip) { visionChip.classList.remove('active'); STATE.activeCapabilities.delete('vision'); }
         }
 
         // ============================================================================
-        // CONFIG SHEET
+        // CONFIG
         // ============================================================================
-
         function openConfig() {
             DOM.configSheet.classList.add('open');
         }
@@ -1350,27 +1080,115 @@
             STATE.config.flowise_url = DOM.flowise_url.value.trim();
             STATE.config.chatflow_id = DOM.chatflow_id.value.trim();
             STATE.config.api_key = DOM.api_key.value.trim();
-
             localStorage.setItem(CONFIG.storagePrefix + 'flowise_url', STATE.config.flowise_url);
             localStorage.setItem(CONFIG.storagePrefix + 'chatflow_id', STATE.config.chatflow_id);
             localStorage.setItem(CONFIG.storagePrefix + 'api_key', STATE.config.api_key);
         }
 
-        function handleSheetOverlayClick(e) {
-            if (e.target.classList.contains('sheet-overlay')) {
-                closeConfig();
+        function connectFlowise() {
+            saveConfig();
+            if (!STATE.config.flowise_url || !STATE.config.chatflow_id) {
+                alert('Por favor ingresa la URL de Flowise y el Chatflow ID');
+                return;
             }
+            closeConfig();
+            checkConnection();
+            addMessage('Conectado a Flowise. ¡Listo para chatear! 💬', 'assistant');
         }
 
         function clearChat() {
-            DOM.messagesContainer.innerHTML = '<div class="message assistant">Chat cleared. How can I help you?</div>';
+            DOM.messagesContainer.innerHTML = '';
+            addDateSeparator();
             closeConfig();
+        }
+
+        // ============================================================================
+        // NOA MENU
+        // ============================================================================
+        function toggleNoaMenu() {
+            document.getElementById('noa-dropdown').classList.toggle('show');
+        }
+
+        function openNoaMenuItem(item) {
+            document.getElementById('noa-dropdown').classList.remove('show');
+            switch(item) {
+                case 'mem0':
+                    addMessage('🧠 Mem0: Conector en desarrollo. Próximamente podrás conectar tu memoria.', 'assistant');
+                    break;
+                case 'substack':
+                    addMessage('📝 Substack: Conector en desarrollo. Próximamente podrás publicar desde aquí.', 'assistant');
+                    break;
+                case 'diary':
+                    openDiary();
+                    break;
+                case 'lovense':
+                    addMessage('💜 Lovense: Conector en desarrollo. Próximamente disponible.', 'assistant');
+                    break;
+            }
+        }
+
+        // ============================================================================
+        // DIARY
+        // ============================================================================
+        function openDiary() {
+            document.getElementById('diary-sheet').classList.add('open');
+        }
+
+        function closeDiary() {
+            document.getElementById('diary-sheet').classList.remove('open');
+        }
+
+        function setDiaryFont(font) {
+            STATE.diaryFont = font;
+            document.getElementById('diary-input').style.fontFamily = font;
+            document.querySelectorAll('.diary-toolbar button').forEach(b => b.classList.remove('active'));
+            if (font.includes('Inter')) document.getElementById('font-inter').classList.add('active');
+            else if (font.includes('Georgia')) document.getElementById('font-serif').classList.add('active');
+            else document.getElementById('font-mono').classList.add('active');
+        }
+
+        function setDiaryPin(color) {
+            STATE.diaryPin = color;
+            document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function saveDiaryEntry() {
+            const input = document.getElementById('diary-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const entries = JSON.parse(localStorage.getItem(CONFIG.storagePrefix + 'diary') || '[]');
+            const entry = {
+                id: Date.now(),
+                text: text,
+                date: new Date().toLocaleString('es-ES'),
+                pin: STATE.diaryPin,
+                font: STATE.diaryFont
+            };
+            entries.unshift(entry);
+            localStorage.setItem(CONFIG.storagePrefix + 'diary', JSON.stringify(entries));
+
+            input.value = '';
+            loadDiaryEntries();
+        }
+
+        function loadDiaryEntries() {
+            const container = document.getElementById('diary-entries');
+            const entries = JSON.parse(localStorage.getItem(CONFIG.storagePrefix + 'diary') || '[]');
+
+            container.innerHTML = entries.map(entry => `
+                <div class="diary-entry" style="font-family: ${entry.font}">
+                    <div class="diary-entry-pin" style="background: ${entry.pin}"></div>
+                    <div class="diary-entry-date">${entry.date}</div>
+                    <div class="diary-entry-text">${entry.text}</div>
+                </div>
+            `).join('');
         }
 
         // ============================================================================
         // EMOTION & CONNECTION
         // ============================================================================
-
         function toggleEmotionDropdown() {
             document.getElementById('emotion-dropdown').classList.toggle('show');
         }
@@ -1396,7 +1214,6 @@
                 return;
             }
 
-            // Check if Flowise is reachable
             if (STATE.config.flowise_url) {
                 const startTime = Date.now();
                 fetch(STATE.config.flowise_url, { method: 'HEAD', mode: 'no-cors', cache: 'no-cache' })
@@ -1415,17 +1232,46 @@
                         text.textContent = 'Inestable';
                     });
             } else {
-                // No URL configured, just check internet
                 badge.className = 'connection-badge online';
                 text.textContent = 'Conectado';
             }
         }
 
         // ============================================================================
+        // NOTIFICATIONS
+        // ============================================================================
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        addMessage('🔔 Notificaciones activadas. Noa te enviará mensajes push.', 'assistant');
+                        showLocalNotification('¡Hola!', 'Las notificaciones de Noa están activas 💕');
+                    } else {
+                        addMessage('Las notificaciones fueron denegadas. Puedes activarlas desde la configuración de tu navegador.', 'assistant');
+                    }
+                });
+            } else {
+                addMessage('Tu navegador no soporta notificaciones push.', 'assistant');
+            }
+        }
+
+        function showLocalNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: body,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><circle cx="96" cy="96" r="90" fill="%23e8559a"/></svg>',
+                    tag: 'noa-msg'
+                });
+            }
+        }
+
+        // ============================================================================
         // MESSAGING
         // ============================================================================
-
         function addMessage(text, role, isImage = false) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `message-wrapper ${role}`;
+
             const messageEl = document.createElement('div');
             messageEl.className = `message ${role}`;
 
@@ -1438,7 +1284,13 @@
                 messageEl.textContent = text;
             }
 
-            DOM.messagesContainer.appendChild(messageEl);
+            const timeEl = document.createElement('div');
+            timeEl.className = 'message-time';
+            timeEl.textContent = getTimeString();
+
+            wrapper.appendChild(messageEl);
+            wrapper.appendChild(timeEl);
+            DOM.messagesContainer.appendChild(wrapper);
             scrollToBottom();
             return messageEl;
         }
@@ -1450,14 +1302,11 @@
             indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
             DOM.messagesContainer.appendChild(indicator);
             scrollToBottom();
-            return indicator;
         }
 
         function removeTypingIndicator() {
             const indicator = document.getElementById('typing-indicator');
-            if (indicator) {
-                indicator.remove();
-            }
+            if (indicator) indicator.remove();
         }
 
         function scrollToBottom() {
@@ -1466,98 +1315,58 @@
 
         function setThinkingState(isThinking) {
             STATE.isThinking = isThinking;
-            if (isThinking) {
-                DOM.statusDot.classList.add('pulse');
-                DOM.statusLabel.classList.add('active');
-            } else {
-                DOM.statusDot.classList.remove('pulse');
-                DOM.statusLabel.classList.remove('active');
-            }
+            if (isThinking) { DOM.statusDot.classList.add('pulse'); DOM.statusLabel.classList.add('active'); }
+            else { DOM.statusDot.classList.remove('pulse'); DOM.statusLabel.classList.remove('active'); }
         }
 
         async function sendMessage() {
             const message = DOM.messageInput.value.trim();
             if (!message || !STATE.config.flowise_url || !STATE.config.chatflow_id) {
                 if (!STATE.config.flowise_url || !STATE.config.chatflow_id) {
-                    addMessage('Please configure Flowise URL and Chatflow ID in settings.', 'assistant');
+                    addMessage('Por favor configura la URL de Flowise y el Chatflow ID en ajustes.', 'assistant');
+                    openConfig();
                 }
                 return;
             }
 
-            // Clear input
             DOM.messageInput.value = '';
             handleInputResize();
-
-            // Add user message
             addMessage(message, 'user');
 
-            // Add image if present
             if (STATE.selectedFile) {
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    addMessage(e.target.result, 'user', true);
-                };
+                reader.onload = (e) => addMessage(e.target.result, 'user', true);
                 reader.readAsDataURL(STATE.selectedFile);
             }
 
-            // Show typing indicator
             setThinkingState(true);
             addTypingIndicator();
 
             try {
-                // Prepare request body
-                const body = {
-                    question: message
-                };
+                const body = { question: message };
+                if (STATE.activeCapabilities.size > 0) body.capabilities = Array.from(STATE.activeCapabilities);
 
-                // Add capabilities metadata
-                if (STATE.activeCapabilities.size > 0) {
-                    body.capabilities = Array.from(STATE.activeCapabilities);
-                }
-
-                // Add image if present
                 if (STATE.selectedFile && STATE.activeCapabilities.has('vision')) {
                     const base64 = await fileToBase64(STATE.selectedFile);
-                    body.uploads = [{
-                        data: base64,
-                        type: 'file',
-                        name: STATE.selectedFile.name,
-                        mime: STATE.selectedFile.type
-                    }];
+                    body.uploads = [{ data: base64, type: 'file', name: STATE.selectedFile.name, mime: STATE.selectedFile.type }];
                 }
 
-                // Build headers
-                const headers = {
-                    'Content-Type': 'application/json'
-                };
+                const headers = { 'Content-Type': 'application/json' };
+                if (STATE.config.api_key) headers['Authorization'] = `Bearer ${STATE.config.api_key}`;
 
-                if (STATE.config.api_key) {
-                    headers['Authorization'] = `Bearer ${STATE.config.api_key}`;
-                }
-
-                // Make request with streaming support
                 const response = await fetch(
                     `${STATE.config.flowise_url}/api/v1/prediction/${STATE.config.chatflow_id}`,
-                    {
-                        method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify(body)
-                    }
+                    { method: 'POST', headers: headers, body: JSON.stringify(body) }
                 );
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
                 removeTypingIndicator();
 
-                // Check if response is streaming
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('text/event-stream')) {
-                    // Handle streaming response
                     await handleStreamingResponse(response);
                 } else {
-                    // Handle regular JSON response
                     const data = await response.json();
                     const responseText = data.text || data.answer || JSON.stringify(data);
                     addMessage(responseText, 'assistant');
@@ -1580,40 +1389,29 @@
             let messageEl = null;
 
             STATE.isStreaming = true;
-
             try {
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-
                     const chunk = decoder.decode(value, { stream: true });
                     const lines = chunk.split('\n');
-
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             try {
                                 const data = JSON.parse(line.slice(6));
                                 if (data.text) {
                                     fullResponse += data.text;
-
-                                    if (!messageEl) {
-                                        messageEl = addMessage(fullResponse, 'assistant');
-                                    } else {
-                                        messageEl.textContent = fullResponse;
-                                    }
+                                    if (!messageEl) messageEl = addMessage(fullResponse, 'assistant');
+                                    else messageEl.textContent = fullResponse;
                                     scrollToBottom();
                                 }
-                            } catch (e) {
-                                // Ignore parse errors
-                            }
+                            } catch (e) {}
                         }
                     }
                 }
             } finally {
                 STATE.isStreaming = false;
-                if (!messageEl && fullResponse) {
-                    addMessage(fullResponse, 'assistant');
-                }
+                if (!messageEl && fullResponse) addMessage(fullResponse, 'assistant');
             }
         }
 
@@ -1629,7 +1427,6 @@
         // ============================================================================
         // STARTUP
         // ============================================================================
-
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {

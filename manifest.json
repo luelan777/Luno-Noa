@@ -1,6 +1,6 @@
 {
-  "name": "Noa - AI Chatbot",
-  "short_name": "Noa",
+  "name": "Luno-Noa",
+  "short_name": "Luno",
   "description": "A modern PWA chatbot powered by Flowise AI",
   "start_url": "./index.html",
   "scope": "./",
@@ -51,9 +51,9 @@
   ],
   "shortcuts": [
     {
-      "name": "New Chat",
+      "name": "Nuevo Chat",
       "short_name": "Chat",
-      "description": "Start a new conversation with Noa",
+      "description": "Inicia una nueva conversación con Noa",
       "url": "./index.html?action=new-chat",
       "icons": [
         {
