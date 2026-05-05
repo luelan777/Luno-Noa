@@ -789,15 +789,15 @@
 
             <div class="config-field">
                 <label for="flowise-url">Flowise URL</label>
-                <input type="text" id="flowise-url" placeholder="https://tu-instancia-flowise.com">
+                <input type="text" id="flowise-url" placeholder="https://tu-instancia-flowise.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="config-field">
                 <label for="chatflow-id">Chatflow ID</label>
-                <input type="text" id="chatflow-id" placeholder="Tu chatflow UUID">
+                <input type="text" id="chatflow-id" placeholder="Tu chatflow UUID" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
             <div class="config-field">
-                <label for="api-key">API Key (Opcional)</label>
-                <input type="password" id="api-key" placeholder="Tu API key">
+                <label for="api-key">API Key</label>
+                <input type="text" id="api-key" placeholder="Tu API key" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             </div>
 
             <div class="config-actions">
@@ -1133,7 +1133,10 @@
         }
 
         function saveConfig() {
-            STATE.config.flowise_url = DOM.flowise_url.value.trim();
+            let url = DOM.flowise_url.value.trim();
+            // Remove trailing slash if present
+            if (url.endsWith('/')) url = url.slice(0, -1);
+            STATE.config.flowise_url = url;
             STATE.config.chatflow_id = DOM.chatflow_id.value.trim();
             STATE.config.api_key = DOM.api_key.value.trim();
             localStorage.setItem(CONFIG.storagePrefix + 'flowise_url', STATE.config.flowise_url);
@@ -1459,7 +1462,9 @@
                 }
 
                 const headers = { 'Content-Type': 'application/json' };
-                if (STATE.config.api_key) headers['Authorization'] = `Bearer ${STATE.config.api_key}`;
+                if (STATE.config.api_key) {
+                    headers['Authorization'] = 'Bearer ' + STATE.config.api_key;
+                }
 
                 const response = await fetch(
                     `${STATE.config.flowise_url}/api/v1/prediction/${STATE.config.chatflow_id}`,
