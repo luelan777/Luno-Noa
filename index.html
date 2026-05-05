@@ -228,12 +228,12 @@
             gap: 12px;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.2;
+            opacity: 0.35;
             transition: opacity 600ms var(--ease);
         }
-        [data-theme="light"] .orb-stage { opacity: 0.3; }
-        .orb-stage.thinking-glow { opacity: 0.35; }
-        [data-theme="light"] .orb-stage.thinking-glow { opacity: 0.45; }
+        [data-theme="light"] .orb-stage { opacity: 0.35; }
+        .orb-stage.thinking-glow { opacity: 0.5; }
+        [data-theme="light"] .orb-stage.thinking-glow { opacity: 0.5; }
         .orb-wrapper { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; animation: orbBreathe 3.5s ease-in-out infinite; }
         .orb-wrapper.thinking { animation: orbBreatheThinking 1.2s ease-in-out infinite; }
         #orb-canvas { display: block; width: 100%; height: 100%; }
@@ -245,7 +245,7 @@
             font-weight: 400;
             letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: var(--text-faint);
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 8px;
